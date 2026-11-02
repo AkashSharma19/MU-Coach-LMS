@@ -4,6 +4,7 @@ import UserManagementPage from './UserManagementPage'
 import RolesAndPermissionsPage from './RolesAndPermissionsPage'
 import AccessManagementSubView from './AccessManagementSubViews'
 import CompetitionManagementPage from './CompetitionManagementPage'
+import AnnouncementsPage from './AnnouncementsPage'
 import {
   Home,
   Activity,
@@ -62,7 +63,8 @@ import {
   FileSpreadsheet,
   Trash,
   Star,
-  Trophy
+  Trophy,
+  Megaphone
 } from 'lucide-react'
 
 export interface SubNavRecord {
@@ -90,7 +92,13 @@ const NAV_ITEMS: NavItem[] = [
     subItems: ['Program Management', 'Program List', 'Curriculum', 'Cohorts']
   },
   { id: 'placement', label: 'Placement', icon: Briefcase, hasSubmenu: true },
-  { id: 'communication', label: 'Communication', icon: MessageSquare, hasSubmenu: true },
+  {
+    id: 'communication',
+    label: 'Communication',
+    icon: MessageSquare,
+    hasSubmenu: true,
+    subItems: [{ id: 'announcements', label: 'Announcements', icon: Megaphone }]
+  },
   {
     id: 'student-experience',
     label: 'Student Experience',
@@ -1140,6 +1148,9 @@ export default function App() {
 
   const toggleSubmenu = (tabId: string) => {
     setActiveTab(tabId)
+    if (tabId === 'communication') {
+      setActiveSubItem('Announcements')
+    }
     setExpandedSubmenu(prev => (prev === tabId ? null : tabId))
   }
 
@@ -1323,14 +1334,12 @@ export default function App() {
                           const subLabel = typeof sub === 'string' ? sub : sub.label
                           const SubIcon = typeof sub === 'string' ? null : sub.icon
                           const isSubActive =
-                            item.id === 'access-management'
-                              ? activeTab === 'access-management' && activeSubItem === subLabel
-                              : item.id === 'student-experience'
-                                ? activeTab === 'student-experience' && activeSubItem === subLabel
-                                : (subLabel === 'Program List' && !selectedProgram) ||
+                            item.id === 'academics'
+                              ? (subLabel === 'Program List' && !selectedProgram) ||
                                 (subLabel === 'Program Management' && !selectedProgram) ||
                                 (subLabel === 'Cohorts' && selectedProgram && !selectedCohort) ||
                                 (subLabel === 'Curriculum' && selectedCohort)
+                              : activeTab === item.id && activeSubItem === subLabel
                           return (
                             <button
                               key={idx}
@@ -1423,6 +1432,10 @@ export default function App() {
             )
           ) : activeTab === 'student-experience' && activeSubItem === 'Competitions' ? (
             <CompetitionManagementPage
+              onActionNotify={(msg) => setActionNotification(msg)}
+            />
+          ) : activeTab === 'communication' && activeSubItem === 'Announcements' ? (
+            <AnnouncementsPage
               onActionNotify={(msg) => setActionNotification(msg)}
             />
           ) : selectedProgram ? (
