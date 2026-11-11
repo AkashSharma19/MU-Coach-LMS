@@ -5,6 +5,7 @@ import RolesAndPermissionsPage from './RolesAndPermissionsPage'
 import AccessManagementSubView from './AccessManagementSubViews'
 import CompetitionManagementPage from './CompetitionManagementPage'
 import AnnouncementsPage from './AnnouncementsPage'
+import StudentPortalView from './StudentPortalView'
 import {
   Home,
   Activity,
@@ -935,6 +936,7 @@ function getInitialNavigation() {
 
 export default function App() {
   const initialNav = getInitialNavigation()
+  const [currentPortalRole, setCurrentRole] = useState<'admin' | 'student'>('admin')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [activeTab, setActiveTab] = useState(() => (initialNav.prog ? 'academics' : 'student-experience'))
   const [expandedSubmenu, setExpandedSubmenu] = useState<string | null>(() => (initialNav.prog ? 'academics' : 'student-experience'))
@@ -1172,6 +1174,10 @@ export default function App() {
     `session ${session.sessionNum}`.includes(normalizedSessionQuery)
   )
 
+  if (currentPortalRole === 'student') {
+    return <StudentPortalView onSwitchToAdmin={() => setCurrentRole('admin')} />
+  }
+
   return (
     <div className="h-screen bg-[#f8fafc] text-slate-700 flex flex-col font-sans overflow-hidden">
       {/* Top Header Navbar */}
@@ -1250,6 +1256,24 @@ export default function App() {
             <span className="text-sm">🇮🇳</span>
           </div>
 
+          {/* Role Switcher (Admin / Student) */}
+          <div className="flex items-center rounded-full bg-slate-100 p-0.5 border border-slate-200 shadow-2xs">
+            <button
+              onClick={() => setCurrentRole('admin')}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white text-teal-700 shadow-2xs"
+            >
+              <ShieldCheck className="h-3.5 w-3.5 text-teal-600" />
+              <span>Admin</span>
+            </button>
+            <button
+              onClick={() => setCurrentRole('student')}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 transition"
+            >
+              <GraduationCap className="h-3.5 w-3.5 text-amber-600" />
+              <span>Student</span>
+            </button>
+          </div>
+
           {/* User Profile */}
           <div className="flex items-center gap-2 pl-2 border-l border-gray-200">
             <img
@@ -1293,7 +1317,11 @@ export default function App() {
                         if (item.hasSubmenu) {
                           toggleSubmenu(item.id)
                         } else {
-                          setActiveTab(item.id)
+                          if (item.id === 'student-interface') {
+                            setCurrentRole('student')
+                          } else {
+                            setActiveTab(item.id)
+                          }
                         }
                       }}
                       title={!isSidebarOpen ? item.label : undefined}
